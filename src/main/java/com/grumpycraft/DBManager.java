@@ -1,7 +1,9 @@
 package com.grumpycraft;
 
 import java.sql.*;
+import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DBManager
 {
@@ -9,9 +11,13 @@ public class DBManager
     private String host, database, username, password;
     private int port;
     Statement statement;
+    BCLUserManager plugin;
 
-    public DBManager()
+    ConcurrentHashMap<String, Integer> chunkOwners = new ConcurrentHashMap<>();
+
+    public DBManager(BCLUserManager plugin)
     {
+        this.plugin = plugin;
         host = "localhost";
         port = 3306;
         database = "bcl";
@@ -53,7 +59,24 @@ public class DBManager
 
     }
 
-    public void setChunks(BCLUserManager plugin, UUID uuid)
+    public int getChunks (UUID uuid)
+    {
+        try
+        {
+            ResultSet res = this.statement.executeQuery("SELECT onlineonly FROM bcl_playersdata WHERE pid = " + UUIDtoHexString(uuid));
+            if (res.next())
+            {
+                return res.getInt("onlineonly");
+            }
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().info(e.toString());
+        }
+        return 0;
+    }
+
+    public void setChunks(UUID uuid)
     {
         try
         {
@@ -65,7 +88,7 @@ public class DBManager
         }
     }
 
-    public void zeroChunks(BCLUserManager plugin, UUID uuid)
+    public void zeroChunks(UUID uuid)
     {
         try
         {
@@ -79,6 +102,47 @@ public class DBManager
         try
         {
             this.statement.executeUpdate("DELETE FROM bcl_chunkloaders WHERE owner = " + UUIDtoHexString(uuid) + ";");
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().info(e.toString());
+        }
+    }
+
+    public void removeDonor(UUID uuid)
+    {
+        try
+        {
+            this.statement.executeUpdate("DELETE FROM bcl_playersdata WHERE pid = " + UUIDtoHexString(uuid) + ";");
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().info(e.toString());
+        }
+
+        try
+        {
+            this.statement.executeUpdate("DELETE FROM bcl_chunkloaders WHERE owner = " + UUIDtoHexString(uuid) + ";");
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().info(e.toString());
+        }
+
+        chunkOwners.remove(uuid);
+    }
+
+    public void refreshCache()
+    {
+        try
+        {
+            plugin.getLogger().info("===== Refreshing Cache =====");
+            ResultSet res = this.statement.executeQuery("SELECT * FROM bcl_playersdata");
+            while (res.next())
+            {
+                plugin.getLogger().info("Player: " + res.getString("pid") + " Chunks: " + Integer.toString(res.getInt("onlineonly")));
+                chunkOwners.putIfAbsent(res.getString("pid"), res.getInt("onlineonly"));
+            }
         }
         catch (Exception e)
         {

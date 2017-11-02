@@ -10,11 +10,11 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class EventListener {
+public class LuckPermsEventListener {
     private final BCLUserManager plugin;
     private DBManager dbManager;
 
-    public EventListener(BCLUserManager plugin, LuckPermsApi api, DBManager dbManager) {
+    public LuckPermsEventListener(BCLUserManager plugin, LuckPermsApi api, DBManager dbManager) {
         this.plugin = plugin;
         this.dbManager = dbManager;
 
@@ -35,7 +35,7 @@ public class EventListener {
             plugin.getLogger().info(event.getUser().getName() + " was promoted to donor.");
 
             //Add rows in database for user
-            this.dbManager.setChunks(plugin, event.getUser().getUuid());
+            this.dbManager.setChunks(event.getUser().getUuid());
 
             TextComponent message = new TextComponent( "You are now a donor! Thank you for donating!  Click this text to view our donor guide." );
             message.setClickEvent( new ClickEvent( ClickEvent.Action.OPEN_URL, "https://gitlab.com/GrumpyCraft/Support/wikis/Donor-Guide" ) );
@@ -62,7 +62,7 @@ public class EventListener {
             plugin.getLogger().info(event.getUser().getName() + " was demoted from donor.");
 
             //Add rows in database for user
-            dbManager.zeroChunks(plugin, event.getUser().getUuid());
+            dbManager.zeroChunks(event.getUser().getUuid());
 
             //Send message to donor to tell them to log out and log back in.
             plugin.getProxy().getPlayer(event.getUser().getUuid()).sendMessage(message);
