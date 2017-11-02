@@ -1,0 +1,5 @@
+name: BCLUserManager
+main: com.grumpycraft.BCLUserManager
+version: 1.0
+author: NinjaDjay
+depend: ["LuckPerms"]
