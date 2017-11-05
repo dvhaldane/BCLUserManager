@@ -62,7 +62,7 @@ public class LuckPermsEventListener {
             plugin.getLogger().info(event.getUser().getName() + " was demoted from donor.");
 
             //Add rows in database for user
-            dbManager.zeroChunks(event.getUser().getUuid());
+            dbManager.removeDonor(event.getUser().getUuid());
 
             //Send message to donor to tell them to log out and log back in.
             plugin.getProxy().getPlayer(event.getUser().getUuid()).sendMessage(message);

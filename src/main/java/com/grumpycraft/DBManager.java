@@ -1,7 +1,6 @@
 package com.grumpycraft;
 
 import java.sql.*;
-import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -88,11 +87,11 @@ public class DBManager
         }
     }
 
-    public void zeroChunks(UUID uuid)
+    public void returnChunks(UUID uuid)
     {
         try
         {
-            this.statement.executeUpdate("UPDATE bcl_playersdata SET onlineonly = 0, alwayson = 0 WHERE pid = " + UUIDtoHexString(uuid) + ";");
+            this.statement.executeUpdate("UPDATE bcl_playersdata SET onlineonly = 27, alwayson = 0 WHERE pid = " + UUIDtoHexString(uuid) + ";");
         }
         catch (Exception e)
         {
@@ -129,7 +128,8 @@ public class DBManager
             plugin.getLogger().info(e.toString());
         }
 
-        chunkOwners.remove(uuid);
+        chunkOwners.remove(uuid.toString());
+
     }
 
     public void refreshCache()
